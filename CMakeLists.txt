@@ -10,6 +10,7 @@ include(CheckCCompilerFlag)
 include(CheckCSourceCompiles)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
+include(CheckSymbolExists)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
@@ -98,6 +99,25 @@ target_compile_definitions(${PROJECT_NAME}
 # FEATURE AVAILABILITY checks
 #-------------------------------------------------------------------------------
 check_include_file(execinfo.h HAVE_EXECINFO_H)
+# backtrace()/backtrace_symbols() are in libc on glibc and macOS, but in a
+# separate libexecinfo on FreeBSD, NetBSD, and musl-based systems. The header
+# alone is not enough to link, so confirm the symbols are linkable and record
+# the extra library when one is required; otherwise disable the feature rather
+# than emit code that compiles but fails to link.
+set(EXECINFO_LIBRARY "")
+if(HAVE_EXECINFO_H)
+  check_symbol_exists(backtrace execinfo.h GKLIB_BACKTRACE_IN_LIBC)
+  if(NOT GKLIB_BACKTRACE_IN_LIBC)
+    set(CMAKE_REQUIRED_LIBRARIES execinfo)
+    check_symbol_exists(backtrace execinfo.h GKLIB_BACKTRACE_IN_LIBEXECINFO)
+    unset(CMAKE_REQUIRED_LIBRARIES)
+    if(GKLIB_BACKTRACE_IN_LIBEXECINFO)
+      set(EXECINFO_LIBRARY execinfo)
+    else()
+      set(HAVE_EXECINFO_H FALSE)
+    endif()
+  endif()
+endif()
 check_function_exists(getline HAVE_GETLINE)
 
 # regular expressions
@@ -172,7 +192,8 @@ target_compile_options(${PROJECT_NAME}
   PUBLIC $<$<NOT:$<OR:$<BOOL:${DEBUG}>,$<BOOL:${GDB}>>>:-O3>)
 
 target_link_libraries(${PROJECT_NAME}
-  PUBLIC $<$<BOOL:${OpenMP_C_FOUND}>:OpenMP::OpenMP_C>)
+  PUBLIC $<$<BOOL:${OpenMP_C_FOUND}>:OpenMP::OpenMP_C>
+         ${EXECINFO_LIBRARY})
 
 #-------------------------------------------------------------------------------
 # APPS configuration
