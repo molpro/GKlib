@@ -62,8 +62,13 @@ typedef ptrdiff_t ssize_t;
 #define PTRDIFF_MAX  INT64_MAX
 #endif
 
-/* MSC does not have INFINITY defined */
+/* Ensure INFINITY is available. C99 and later (including MSVC's UCRT) define
+   it in <math.h>; pull that in first so the guard below sees the system
+   definition instead of shadowing it (which triggers MSVC warning C4005).
+   The FLT_MAX fallback only applies to toolchains that genuinely lack it. */
+#include <math.h>
 #ifndef INFINITY
+#include <float.h>
 #define INFINITY FLT_MAX
 #endif
 
