@@ -42,6 +42,21 @@ By default, the library file, header file, and binaries will be installed in
 ~/local/bin
 ```
 
+## Building on Windows
+
+The `make` targets are a thin convenience wrapper that relies on Unix shell
+tools (`uname`, `rm`, `mkdir -p`, ...), so `make config` does not work from a
+native Windows command prompt. On native Windows, invoke CMake directly:
+```
+cmake -B build -S .
+cmake --build build --config Release
+cmake --install build
+```
+
+The configuration options above map to CMake `-D` flags, for example
+`-DOPENMP=ON`, `-DSHARED=ON`, or `-DCMAKE_INSTALL_PREFIX=<path>`. Under MSYS2,
+Cygwin, or WSL the `make` wrapper works the same as on Unix.
+
 ## Other make commands
     make uninstall 
          Removes all files installed by 'make install'.
