@@ -17,9 +17,26 @@ include(GNUInstallDirs)
 #-------------------------------------------------------------------------------
 # OPTIONS
 #-------------------------------------------------------------------------------
-option(ASSERT "turn asserts on" OFF)
+# When the build options below are not set explicitly, derive their defaults
+# from CMAKE_BUILD_TYPE so that a plain `cmake -DCMAKE_BUILD_TYPE=Debug` yields
+# an unoptimized, assertion-enabled build instead of GKlib's forced -O3/NDEBUG.
+# Explicitly-set options always win (option() leaves cached values untouched),
+# so the `make config debug=set assert=set` workflow -- which sets DEBUG/ASSERT
+# in the cache -- is unchanged. Like any option() default, this is applied only
+# on the first configure of a build tree; changing CMAKE_BUILD_TYPE afterwards
+# requires clearing the CMake cache.
+string(TOUPPER "${CMAKE_BUILD_TYPE}" GKLIB_BUILD_TYPE)
+if(GKLIB_BUILD_TYPE STREQUAL "DEBUG")
+  set(GKLIB_DEFAULT_DEBUG  ON)
+  set(GKLIB_DEFAULT_ASSERT ON)
+else()
+  set(GKLIB_DEFAULT_DEBUG  OFF)
+  set(GKLIB_DEFAULT_ASSERT OFF)
+endif()
+
+option(ASSERT "turn asserts on" ${GKLIB_DEFAULT_ASSERT})
 option(ASSERT2 "additional assertions" OFF)
-option(DEBUG "add debugging support" OFF)
+option(DEBUG "add debugging support" ${GKLIB_DEFAULT_DEBUG})
 option(GPROF "add gprof support" OFF)
 option(GDB "add gdb support" OFF)
 option(GKRAND "enable GKRAND support" OFF)
