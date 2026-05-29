@@ -159,8 +159,8 @@ if(GPROF)
   endif()
 endif()
 
-# profiling support
-if(GDB|DEBUG)
+# debug symbol support
+if(GDB OR DEBUG)
   check_c_compiler_flag("-g" HAVE_GDB_SUPPORT)
   if(NOT HAVE_GDB_SUPPORT)
     message(WARNING "GDB support was requested, but is not available")
