@@ -1,6 +1,6 @@
 # Configuration options.
 cc       = gcc
-prefix   = ~/local
+prefix   = $(HOME)/local
 openmp   = not-set
 gdb      = not-set
 assert   = not-set
@@ -53,7 +53,7 @@ ifneq ($(gkrand), not-set)
     CONFIG_FLAGS += -DGKRAND=$(gkrand)
 endif
 ifneq ($(prefix), not-set)
-    CONFIG_FLAGS += -DCMAKE_INSTALL_PREFIX=$(prefix)
+    CONFIG_FLAGS += -DCMAKE_INSTALL_PREFIX="$(abspath $(prefix))"
 endif
 ifneq ($(cc), not-set)
     CONFIG_FLAGS += -DCMAKE_C_COMPILER=$(cc)
