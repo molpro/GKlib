@@ -1,11 +1,13 @@
 on:
   - push
+  - pull_request
 
 jobs:
   build-linux:
     name: Use clang and gcc via "Unix Makefiles"
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         compiler: [clang, gcc]
     steps:
@@ -18,6 +20,7 @@ jobs:
     name: Use clang and clang-cl via Ninja
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         # On Windows, clang only enables the WIN32 flag in CMake whereas
         # clang-cl also enables MSVC, because it has a cl.exe-like interface.
@@ -35,6 +38,7 @@ jobs:
     name: Use MSVC and clang-cl via MSBuild
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         toolset:
           # The default toolset should be the latest 'v143' when nothing is specified
